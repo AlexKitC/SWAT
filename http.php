@@ -5,6 +5,8 @@ foreach($config as $k => $v){
 }
 const APIROOT = __DIR__;
 require_once __DIR__."/core/func.php";
+require_once __DIR__."/core/Db.driver.php";
+require_once __DIR__."/core/Db.channel.php";
 class Http{
     public $http;
     public function __construct(){
@@ -16,6 +18,10 @@ class Http{
             'max_request' => 8000,
             'dispatch_mode'=>1, 
         ]);
+        $this -> http -> on("WorkerStart", function () {
+            //MysqlPoolCoroutine::getInstance()->init()->gcSpareObject();
+            Swoole\Coroutine\MysqlPoolCoroutine::getInstance()->init();
+        });
         $this -> http -> on('request',function($request,$response){
             $server = $request -> server;
             if($server['path_info'] !== "/favicon.ico"){

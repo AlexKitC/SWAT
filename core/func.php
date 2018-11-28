@@ -46,7 +46,7 @@ if(!function_exists("dealPathInfo")){
                 }
                 if($is_controller){//若存在控制器则实例化该控制器类
                     require_once(APIROOT.'/application/'.$moudle.'/controller/'.$controller.'.php');
-                    $ControllerObjStr = '\application\controller\\'.$controller;
+                    $ControllerObjStr = 'Swoole\Coroutine\\'.$controller;
                     $Controller = "";
                     if(!in_array($ControllerObjStr,$controllerObjs)){
                         $Controller = new $ControllerObjStr();
@@ -80,7 +80,6 @@ if(!function_exists("dealPathInfo")){
                                         $params[$paramsArr[$k-1]] = $paramsArr[$k];
                                     }
                                 }
-                                // $_SERVER['_GET'] = $params;
                                 ob_start();
                                 $Controller -> $action($params);
                                 return ob_get_clean();
