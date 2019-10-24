@@ -12,7 +12,7 @@ return [
     'mysql' => [
         'host'      => 'localhost',
         'user'      => 'alex',
-        'pass'      => 'Lilin392999.',
+        'pass'      => 'root',
         'port'      => 3306,
         'database'  => 'mysql',
         'timeout'   => 3,
