@@ -1,0 +1,23 @@
+{
+    "name": "alex/swat",
+    "description": "high performance MVC framework based swoole extend",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "alex-黑白",
+            "email": "392999164@qq.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "App\\"  : "app/",
+            "Core\\" : "core/"
+        },
+        "files": [
+            "core/Framework/helpers.php"
+        ]
+    },
+    
+    "require": {}
+}
