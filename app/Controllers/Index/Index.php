@@ -8,8 +8,12 @@ class Index extends Controller
     public function index()
     {
         $conn = Mysql::getInstance()->getConn();
-        $res = $conn->query("select * from user");
-        Mysql::getInstance()->returnConn($conn);
-        return json_encode($res);
+        
+            $res = $conn->query("select * from user LIMIT 1");
+            Mysql::getInstance()->returnConn($conn);
+            // return json_encode($res);
+            return 0;
+        
+        
     }
 }

@@ -9,7 +9,7 @@ class Mysql
     public static $instance;
     private $min;
     private $max;
-    private $currentConnsCount;
+    protected $count;//当前的连接数
     private $conns;
     protected $freeTime;
 
@@ -24,16 +24,16 @@ class Mysql
 
     public static function getInstance()
     {
-        if(!self::$instance) {
-            return new self();
+        if(is_null(self::$instance)) {
+            self::$instance = new self();
         }
         return self::$instance;
     }
 
-    private static function createConn()
+    private function createConn()
     {
         $conn = new CoMysql();
-        $conn->connect([
+        $res = $conn->connect([
             'host' => Context::getConf('mysql')['host'],
             'port' => Context::getConf('mysql')['port'],
             'user' => Context::getConf('mysql')['user'],
@@ -41,15 +41,18 @@ class Mysql
             'database' => Context::getConf('mysql')['database'],
             'timeout'  => Context::getConf('mysql')['timeout'],
         ]);
+        if ($res === false) {
+            throw new \Exception("Failed to connect mysql server!so create connection faild");
+        }
         return $conn;
     }
 
     /**
      * 创建连接对象
      */
-    private static function createConnObj()
+    protected function createConnObj()
     {
-        $conn = self::createConn();
+        $conn = $this->createConn();
         return $conn ? ['lastUseTime'=>time(),'conn'=>$conn] : null;
     }
 
@@ -58,10 +61,15 @@ class Mysql
      */
     public function init()
     {
+        if($this->max%Context::getConf('worker_num') !== 0) {
+            echo 'mysql连接池允许的最大值 max 必须为worker_num的整数倍，您当前的worker_num值为：'.Context::getConf('worker_num')."\r\n";
+            return false;
+        }
+
         for($i=0;$i<$this->min;$i++) {
-            $obj = self::createConnObj();
-            $this->currentConnsCount++;
+            $obj = $this->createConnObj();
             $this->conns->push($obj);
+            $this->count++;
         }
         return $this;
     }
@@ -69,22 +77,23 @@ class Mysql
     /**
      * 获取连接
      */
-    public function getConn(int $timeout = 3)
+    public function getConn()
     {
+        $obj = null;
+        echo $this->count."\r\n";
         if($this->conns->isEmpty()) {
-            echo 'empty!';
-            if($this->currentConnsCount < $this->max) {
-                $obj = self::createConnObj();
-                $this->currentConnsCount++;
+            if($this->count < intval(($this->max)/(Context::getConf('worker_num') ?? 4))) {
+                $obj = $this->createConnObj();
+                $this->count++;
+                echo "创建一个连接\r\n";
             } else {
-                $obj = $this->conns->pop($timeout);
+                $obj = $this->conns->pop(1);
             }
         } else {
-            echo 'not empty';
-            $obj = $this->conns->pop($timeout);
+            $obj = $this->conns->pop(1);
         }
-        //保存当前连接实例到当前协程下的资源上下文，以便于Controller父类析构自动回收mysql连接资源
         $resource = $obj['conn']->connected ? $obj['conn'] : $this->getConn();
+        echo '使用后-：'.$this->conns->length()."\r\n";
         return $resource;
     }
 
@@ -96,7 +105,7 @@ class Mysql
     {
         if($conn->connected) {
             $this->conns->push(['lastUseTime'=>time(),'conn'=>$conn]);
-            echo 'return conn success';
+            echo '归还后：'.$this->conns->length()."\r\n";
         }
     }
 
@@ -111,14 +120,14 @@ class Mysql
             }
 
             while(true) {
-                if($this->conns->isEmpty()) {//池子一个不剩，说明比较繁忙
+                if($this->conns->isEmpty()) {//池子一个不剩，说明比较繁忙,暂不回收
                     break;
                 }
                 $connObj = $this->conns->pop(0.01);
                 //当前连接数大于最小值，并且池子可用的大于最小值,且半小时没用过的 可以回收
-                if($this->currentConnsCount > $this->min && $this->conns->length() > $this->min && (time() - $connObj['lastUseTime']) > $this->freeTime) {
+                if($this->count++ > $this->min && $this->count > $this->min && (time() - $connObj['lastUseTime']) > $this->freeTime) {
                     $connObj['conn']->close();
-                    $this->currentConnsCount--;
+                    $this->count--;
                 } else {
                     $this->conns->push($connObj);
                 }

@@ -72,8 +72,17 @@ class Init
         });
 
         $http->on('WorkerStart', function(\Swoole\Http\Server $http, int $workerId) {
-            \Core\Db\Mysql::getInstance()->init()->keepConns();
-            echo 'server:'.$workerId.' start'."\r\n";
+            echo '进程:'.$workerId.' start'."\r\n";
+            try{
+                \Core\Db\Mysql::getInstance()->init()->keepConns();
+            } catch(\Exception $e) {
+                echo $e->getMessage();
+                return;
+            } catch(\Error $e) {
+                echo $e->getMessage();
+                return;
+            }
+            
         });
 
         $http->start();
