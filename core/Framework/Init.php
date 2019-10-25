@@ -60,7 +60,12 @@ class Init
                     $action = $requestAction['action'];
                     Context::set($request, $response);//保存请求上下文
                     //注意当前保存请求上下文信息是为了控制器等实例可以使用，response应答后应当销毁
-                    Context::getResponse()->end($controllerInstance->$action());//执行控制器方法并输出到浏览器
+                    try{
+                        Context::getResponse()->end($controllerInstance->$action());//执行控制器方法并输出到浏览器
+                    } catch(\Exception $e) {
+                        Context::getResponse()->end($e->getMessage()."\r\nerrno: ".$e->getCode());
+                        return;
+                    }
                     Context::clearContextHeader();//销毁上下文请求头部分
                 } else {
                     echo 'file: '.$requestAction['controllerPath'].' not exsit :(';
@@ -74,7 +79,9 @@ class Init
         $http->on('WorkerStart', function(\Swoole\Http\Server $http, int $workerId) {
             echo '进程:'.$workerId.' start'."\r\n";
             try{
-                \Core\Db\Mysql::getInstance()->init()->keepConns();
+                if(!is_null(Context::getConf('mysql'))) {
+                    \Core\Db\Mysql::getInstance()->init()->keepConns();
+                } 
             } catch(\Exception $e) {
                 echo $e->getMessage();
                 return;

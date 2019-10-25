@@ -80,12 +80,10 @@ class Mysql
     public function getConn()
     {
         $obj = null;
-        echo $this->count."\r\n";
         if($this->conns->isEmpty()) {
             if($this->count < intval(($this->max)/(Context::getConf('worker_num') ?? 4))) {
                 $obj = $this->createConnObj();
                 $this->count++;
-                echo "创建一个连接\r\n";
             } else {
                 $obj = $this->conns->pop(1);
             }
