@@ -7,12 +7,12 @@ class Index extends Controller
 {
     public function index()
     {
-        $conn = Mysql::getInstance()->getConn();
+        // $conn = Mysql::getInstance()->getConn();
         
-            $res = $conn->query("select * from user LIMIT 1");
-            Mysql::getInstance()->returnConn($conn);
-            // return json_encode($res);
-            return 0;
+        //     $res = $conn->query("select * from user LIMIT 1");
+        //     Mysql::getInstance()->returnConn($conn);
+        //     return json_encode($res);
+            return 'hello swat';
         
         
     }

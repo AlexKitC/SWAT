@@ -156,20 +156,21 @@ class Init
      */
     private function setConfByEnv()
     {
-        $env = require(APP_ROOT.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'conf.php');
+        $basePath = APP_ROOT.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR;
+        $env = require($basePath.'conf.php');
         $currentEnv = $env['env'] ?? null;
         $envConf = [];
         switch($currentEnv) {
             case 'dev':
-                $envConf = require(APP_ROOT.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'dev.php');
+                $envConf = require($basePath.'dev.php');
                 break;
             case 'test':
-                $envConf = require(APP_ROOT.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'test.php');
+                $envConf = require($basePath.'test.php');
                 break;
             case 'prod':
-                $envConf = require(APP_ROOT.DIRECTORY_SEPARATOR.'conf'.DIRECTORY_SEPARATOR.'prod.php');
+                $envConf = require($basePath.'prod.php');
                 break;
         }
-        Context::setConfContext($envConf);
+        if(!is_null($envConf)) Context::setConfContext($envConf);
     }
 }
