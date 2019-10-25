@@ -93,7 +93,6 @@ class Mysql
             $obj = $this->conns->pop(1);
         }
         $resource = $obj['conn']->connected ? $obj['conn'] : $this->getConn();
-        echo '使用后-：'.$this->conns->length()."\r\n";
         return $resource;
     }
 
@@ -105,7 +104,6 @@ class Mysql
     {
         if($conn->connected) {
             $this->conns->push(['lastUseTime'=>time(),'conn'=>$conn]);
-            echo '归还后：'.$this->conns->length()."\r\n";
         }
     }
 
