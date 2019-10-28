@@ -20,5 +20,6 @@ return [
         'min'       => 2,
         'max'       => 4,
         'freeTime'  => 1800
-    ]
+    ],
+
 ];

@@ -1,19 +1,12 @@
 <?php
 namespace App\Controllers\Index;
 use \Core\Framework\Controller;
-use \Core\Framework\Context;
-use \Core\Db\Mysql;
+use \Core\Framework\View;
 class Index extends Controller
 {
-    public function index()
+    public function welcome() 
     {
-        // $conn = Mysql::getInstance()->getConn();
-        
-        //     $res = $conn->query("select * from user LIMIT 1");
-        //     Mysql::getInstance()->returnConn($conn);
-        //     return json_encode($res);
-            return 'hello swat';
-        
-        
+        return 'hello SWAT!';
     }
+
 }

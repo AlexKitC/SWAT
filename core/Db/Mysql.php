@@ -110,7 +110,7 @@ class Mysql
      */
     public function keepConns()
     {
-        Swoole\Timer::tick(30*60000, function() {//半个小时检测一次
+        \Swoole\Timer::tick(30*60000, function() {//半个小时检测一次
             if($this->conns->length() > $this->min) {//不回收
                 return;
             }

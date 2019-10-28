@@ -53,7 +53,9 @@ class Init
         ]);
         $http->on('request', function (\Swoole\Http\Request $request, \Swoole\Http\Response $response) use ($route){
             $requestUri = $request->server['request_uri'];
-            if($requestUri !== '/favicon.ico') {
+
+            if($requestUri !== '/favicon.ico' && $this->needNginx($requestUri)) {
+                var_dump($requestUri);
                 $requestAction = $this->parseRoute($route, $requestUri);
                 if($this->fileExists($requestAction['controllerPath'])) {
                     $controllerInstance = new $requestAction['namespacePath'];
@@ -172,5 +174,24 @@ class Init
                 break;
         }
         if(!is_null($envConf)) Context::setConfContext($envConf);
+    }
+
+    /**
+     * 是否静态资源不做处理
+     */
+    private function needNginx(string $requestUri)
+    {
+        $reqSuffixArr = explode(".",$requestUri);
+        if($reqSuffixArr) {
+            $reqSuffix = $reqSuffixArr[count($reqSuffixArr)-1];
+            $staticResource = ['js','css','jpg','jpeg','png','gif','woff'];
+            if(in_array($reqSuffix, $staticResource)) {
+                return false;
+            }
+            return true;
+        } else {
+            return true;
+        }
+        
     }
 }

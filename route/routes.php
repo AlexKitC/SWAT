@@ -1,6 +1,6 @@
 <?php
 
 return $routes = [
-    '/'              => '/Index/Index@index',
-    '/index/index/a' => '/Index/Index@index',
+    '/'              => '/Index/Index@welcome',
+    '/index/index/a' => '/Index/Index@welcome',
 ];
