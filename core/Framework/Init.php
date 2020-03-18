@@ -10,7 +10,7 @@ class Init
     public static function getInstance()
     {
         if(!self::$instance) {
-            return new self();
+            self::$instance = new self();
         }
         return self::$instance;
     }
@@ -55,7 +55,7 @@ class Init
             $requestUri = $request->server['request_uri'];
 
             if($requestUri !== '/favicon.ico' && $this->needNginx($requestUri)) {
-                var_dump($requestUri);
+                //var_dump($requestUri);
                 $requestAction = $this->parseRoute($route, $requestUri);
                 if($this->fileExists($requestAction['controllerPath'])) {
                     $controllerInstance = new $requestAction['namespacePath'];
